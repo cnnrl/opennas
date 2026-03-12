@@ -1,4 +1,4 @@
-package com.conner.gdrive;
+package com.conner.gdrive.controllers;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -20,58 +20,23 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.conner.gdrive.dto.AuthRequest;
 import com.conner.gdrive.dto.FileResult;
-import com.conner.gdrive.models.DeleteTicket;
+import com.conner.gdrive.dto.DeleteTicket;
 import com.conner.gdrive.models.FileMetadata;
-import com.conner.gdrive.services.AuthService;
 import com.conner.gdrive.services.FileService;
 
 @RestController
-public class GdriveController {
-
-  private static final Logger log = LoggerFactory.getLogger(GdriveController.class);
-
+public class FileController {
   private final FileService fileService;
-  private final AuthService authService;
 
-  public GdriveController(FileService fileService, AuthService authService) {
+  private static final Logger log = LoggerFactory.getLogger(FileController.class);
+
+  public FileController(FileService fileService) {
     this.fileService = fileService;
-    this.authService = authService;
-  }
-
-  @GetMapping("/")
-  public String index() {
-    return "200 now fuck off";
-  }
-
-  @PostMapping("/register")
-  public ResponseEntity<?> register(@RequestBody AuthRequest req) {
-    try {
-      authService.register(req.getUsername(), req.getPassword());
-      return login(req);
-    } catch (IllegalArgumentException e) {
-      log.error("Could not create with username: {}", req.getUsername(), e);
-      return ResponseEntity.badRequest().body(e.getMessage());
-    }
-  }
-
-  @PostMapping("/login")
-  public ResponseEntity<?> login(@RequestBody AuthRequest req) {
-    try {
-      String token = authService.login(req.getUsername(), req.getPassword());
-      return ResponseEntity
-          .status(HttpStatus.OK)
-          .body(token);
-    } catch (IllegalArgumentException e) {
-      log.error("Could not log in user: {}", req.getUsername(), e);
-      return ResponseEntity.badRequest().body(e.getMessage());
-    }
   }
 
   @GetMapping("/files")
@@ -191,4 +156,5 @@ public class GdriveController {
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
     }
   }
+
 }

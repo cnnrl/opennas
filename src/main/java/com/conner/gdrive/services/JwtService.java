@@ -47,4 +47,23 @@ public class JwtService {
         .getPayload()
         .get("role", String.class);
   }
+
+  public String generateStreamToken(String username, String songId, long duration) {
+    return Jwts.builder()
+        .subject(username)
+        .claim("songId", songId)
+        .expiration(new Date(System.currentTimeMillis() + (duration * 1000L) + 600000)) // duration + 10mins
+        .signWith(key)
+        .compact();
+  }
+
+  public String extractSongId(String token) {
+    return Jwts.parser()
+        .verifyWith(key)
+        .build()
+        .parseSignedClaims(token)
+        .getPayload()
+        .get("songId", String.class);
+  }
+
 }

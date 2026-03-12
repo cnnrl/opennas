@@ -19,7 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.conner.gdrive.dto.FileResult;
 import com.conner.gdrive.models.FileMetadata;
-import com.conner.gdrive.models.DeleteTicket;
+import com.conner.gdrive.dto.DeleteTicket;
 import com.conner.gdrive.repositories.FileMetadataRepository;
 
 @Service
@@ -45,7 +45,7 @@ public class FileService {
     String id = UUID.randomUUID().toString();
     String home = System.getProperty("user.home");
     String fileName = Paths.get(file.getOriginalFilename()).getFileName().toString();
-    Path storagePath = Paths.get(home, "gdrive", owner, id, fileName);
+    Path storagePath = Paths.get(home, "gdrive", "files", owner, id, fileName);
 
     String type = file.getContentType();
 
@@ -89,7 +89,7 @@ public class FileService {
     }
 
     String fileName = Paths.get(md.getFileName()).getFileName().toString();
-    Path path = Paths.get(System.getProperty("user.home"), "gdrive", md.getOwner(), id, fileName);
+    Path path = Paths.get(System.getProperty("user.home"), "gdrive", "files", md.getOwner(), id, fileName);
 
     if (!Files.exists(path)) {
       throw new FileNotFoundException("File Not Found!");
@@ -110,7 +110,7 @@ public class FileService {
 
     FileMetadata md = repo.findById(id).orElseThrow(() -> new IllegalArgumentException("File Not Found!"));
 
-    Path path = Paths.get(System.getProperty("user.home"), "gdrive", md.getOwner(), id, md.getFileName());
+    Path path = Paths.get(System.getProperty("user.home"), "gdrive", "files", md.getOwner(), id, md.getFileName());
     if (!Files.exists(path)) {
       throw new FileNotFoundException("File Not Found!");
     }

@@ -25,6 +25,7 @@ dependencies {
   implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
   implementation 'org.aspectj:aspectjweaver'
   implementation 'org.springframework.boot:spring-boot-h2console'
+  implementation 'net.jthink:jaudiotagger:3.0.1'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	runtimeOnly 'com.h2database:h2'
   runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'

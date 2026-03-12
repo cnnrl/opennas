@@ -1,4 +1,4 @@
-package com.conner.gdrive.models;
+package com.conner.gdrive.dto;
 
 import java.time.LocalDateTime;
 

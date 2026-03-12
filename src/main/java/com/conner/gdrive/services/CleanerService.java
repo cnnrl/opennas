@@ -30,35 +30,39 @@ public class CleanerService {
 
   // @Scheduled(cron = "0 0 0 * * * ") For prod - midnight
   @Scheduled(fixedRate = 180000) // For test - 3 mins
+
   public void clean() {
     Set<String> dbIds = repo.findAll().stream()
         .map(FileMetadata::getId)
         .collect(Collectors.toCollection(HashSet::new));
-    try (Stream<Path> paths = Files.walk(Paths.get(System.getProperty("user.home"), "gdrive"))) {
+
+    try (Stream<Path> paths = Files.walk(Paths.get(System.getProperty("user.home"), "gdrive", "files"))) {
       paths.filter(p -> p.toFile().isFile())
-          .filter(p -> !p.startsWith(Paths.get(System.getProperty("user.home"), "gdrive", "glogs")))
+          .filter(p -> {
+            try {
+              UUID.fromString(p.getParent().getFileName().toString());
+              return true;
+            } catch (Exception e) {
+              return false;
+            }
+          })
           .forEach(p -> {
             String id = p.getParent().getFileName().toString();
-            try {
-              UUID.fromString(id);
-            } catch (Exception e) {
-              log.error("Cleaner failed!", e);
-            }
             if (dbIds.contains(id)) {
               dbIds.remove(id);
             } else {
               try {
-                Path idDir = p.getParent();
                 Files.deleteIfExists(p);
-                Files.deleteIfExists(idDir);
+                Files.deleteIfExists(p.getParent());
               } catch (IOException e) {
-                log.error("Cleaner failed!", e);
+                log.error("Cleaner failed deleting file: {}", id, e);
               }
             }
           });
     } catch (IOException e) {
-      log.error("Cleaner failed!", e);
+      log.error("Cleaner walk failed!", e);
     }
+
     repo.deleteAllById(dbIds);
   }
 }
