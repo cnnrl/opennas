@@ -13,20 +13,22 @@ public class SongMetadata {
   private String album;
   private int duration;
   private long fileSize;
+  private String fileName;
   private String coverExt;
 
-  public String getCoverExt() {
-    return coverExt;
+  public SongMetadata() {
+    this("", "", "", "", 0, 0L, "", "");
   }
 
   public SongMetadata(String id, String songName, String artist, String album, int duration, long fileSize,
-      String coverExt) {
+      String fileName, String coverExt) {
     this.id = id;
     this.songName = songName;
     this.artist = artist;
     this.album = album;
     this.duration = duration;
     this.fileSize = fileSize;
+    this.fileName = fileName;
     this.coverExt = coverExt;
   }
 
@@ -53,4 +55,13 @@ public class SongMetadata {
   public long getFileSize() {
     return fileSize;
   }
+
+  public String getFileName() {
+    return fileName;
+  }
+
+  public String getCoverExt() {
+    return coverExt;
+  }
+
 }

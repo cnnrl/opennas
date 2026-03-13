@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.conner.gdrive.models.Role;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -48,10 +49,11 @@ public class JwtService {
         .get("role", String.class);
   }
 
-  public String generateStreamToken(String username, String songId, long duration) {
+  public String generateStreamToken(String username, String songId, String sessionId, long duration) {
     return Jwts.builder()
         .subject(username)
         .claim("songId", songId)
+        .claim("sessionId", sessionId)
         .expiration(new Date(System.currentTimeMillis() + (duration * 1000L) + 600000)) // duration + 10mins
         .signWith(key)
         .compact();
@@ -64,6 +66,23 @@ public class JwtService {
         .parseSignedClaims(token)
         .getPayload()
         .get("songId", String.class);
+  }
+
+  public String extractSessionId(String token) {
+    return Jwts.parser()
+        .verifyWith(key)
+        .build()
+        .parseSignedClaims(token)
+        .getPayload()
+        .get("sessionId", String.class);
+  }
+
+  public Claims parse(String token) {
+    return Jwts.parser()
+        .verifyWith(key)
+        .build()
+        .parseSignedClaims(token)
+        .getPayload();
   }
 
 }

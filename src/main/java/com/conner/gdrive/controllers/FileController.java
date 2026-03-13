@@ -24,8 +24,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.conner.gdrive.dto.FileResult;
 import com.conner.gdrive.dto.DeleteTicket;
+import com.conner.gdrive.dto.FileResult;
 import com.conner.gdrive.models.FileMetadata;
 import com.conner.gdrive.services.FileService;
 

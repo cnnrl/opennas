@@ -17,9 +17,9 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.conner.gdrive.dto.DeleteTicket;
 import com.conner.gdrive.dto.FileResult;
 import com.conner.gdrive.models.FileMetadata;
-import com.conner.gdrive.dto.DeleteTicket;
 import com.conner.gdrive.repositories.FileMetadataRepository;
 
 @Service
