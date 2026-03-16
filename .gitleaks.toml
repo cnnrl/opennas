@@ -1,0 +1,7 @@
+title = "OpenNAS Gitleaks Config"
+
+[allowlist]
+description = "Allow non-secret templates"
+paths = [
+  '''^\.env\.example$'''
+]
