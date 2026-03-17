@@ -2,14 +2,18 @@
 set -euo pipefail
 
 # Block common local secret files from being committed.
-if git diff --cached --name-only | rg -n "^(\.env|\.env\..*|src/main/resources/application-secrets\.properties|src/test/resources/application-secrets\.properties)$" >/dev/null; then
+if git diff --cached --name-only \
+  | rg "^(\.env|\.env\..*|src/main/resources/application-secrets\.properties|src/test/resources/application-secrets\.properties)$" \
+  | rg -v "^\.env\.example$" >/dev/null; then
   echo "Error: secret file detected in staged changes (.env or application-secrets.properties)." >&2
   echo "Remove it from staging and keep secrets local only." >&2
   exit 1
 fi
 
 # Inspect staged content for secret-like assignments and private keys.
-if git diff --cached -- . ':(exclude).env.example' ':(exclude)src/test/resources/application.properties' | rg -n "(jwt\.secret\s*=\s*[A-Za-z0-9+/]{20,}={0,2}|crypt\.secret\s*=\s*[A-Za-z0-9+/]{20,}={0,2}|JWT_SECRET\s*=\s*[A-Za-z0-9+/]{20,}={0,2}|CRYPT_SECRET\s*=\s*[A-Za-z0-9+/]{20,}={0,2}|BEGIN (RSA|EC|OPENSSH|PRIVATE) KEY|aws_secret_access_key|AKIA[0-9A-Z]{16}|ghp_[A-Za-z0-9]{36,})" >/dev/null; then
+if git diff --cached -- . ':(exclude).env.example' ':(exclude)src/test/resources/application.properties' ':(exclude).githooks/pre-commit' \
+  | rg "^\+[^+]" \
+  | rg -n "(jwt\.secret\s*=\s*[A-Za-z0-9+/]{20,}={0,2}|crypt\.secret\s*=\s*[A-Za-z0-9+/]{20,}={0,2}|JWT_SECRET\s*=\s*[A-Za-z0-9+/]{20,}={0,2}|CRYPT_SECRET\s*=\s*[A-Za-z0-9+/]{20,}={0,2}|BEGIN (RSA|EC|OPENSSH|PRIVATE) KEY|aws_secret_access_key|AKIA[0-9A-Z]{16}|ghp_[A-Za-z0-9]{36,})" >/dev/null; then
   echo "Error: staged changes appear to include secrets or key material." >&2
   echo "Use environment variables and local ignored files instead." >&2
   exit 1

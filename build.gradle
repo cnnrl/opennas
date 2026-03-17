@@ -37,3 +37,32 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+def loadDotEnv = { File envFile ->
+	Map<String, String> vars = [:]
+	if (!envFile.exists()) {
+		return vars
+	}
+
+	envFile.eachLine { rawLine ->
+		String line = rawLine.trim()
+		if (line && !line.startsWith('#')) {
+			int separator = line.indexOf('=')
+			if (separator > 0) {
+				String key = line.substring(0, separator).trim()
+				String value = line.substring(separator + 1).trim()
+				if ((value.startsWith('"') && value.endsWith('"')) ||
+					(value.startsWith('\'') && value.endsWith('\''))) {
+					value = value.substring(1, value.length() - 1)
+				}
+				vars[key] = value
+			}
+		}
+	}
+
+	return vars
+}
+
+tasks.named('bootRun') {
+	environment(loadDotEnv(file('.env')))
+}
