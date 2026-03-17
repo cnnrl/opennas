@@ -27,8 +27,8 @@ public class CleanerService {
     this.repo = repo;
   }
 
-  // @Scheduled(cron = "0 0 0 * * * ") For prod - midnight
-  @Scheduled(fixedRate = 180000) // For test - 3 mins
+  @Scheduled(cron = "0 0 0 * * * ") // For prod - midnight
+  // @Scheduled(fixedRate = 180000) // For test - 3 mins
 
   public void clean() {
     Set<String> dbIds = repo.findAll().stream()

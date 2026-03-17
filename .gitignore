@@ -43,3 +43,6 @@ out/
 application-secrets.properties
 src/main/resources/application-secrets.properties
 src/test/resources/application-secrets.properties
+
+### Test Assets ###
+src/test/integration/test.mp3
