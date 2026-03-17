@@ -42,6 +42,12 @@ public class MusicController {
     return ResponseEntity.ok().body(songs);
   }
 
+  @GetMapping("/music/{album}")
+  public ResponseEntity<?> viewAlbum(@PathVariable String album) {
+    List<SongMetadata> songs = musicService.findByAlbum(album);
+    return ResponseEntity.ok().body(songs);
+  }
+
   // @PreAuthorize("hasRole('ADMIN')")
   @PostMapping("/music/upload")
   public ResponseEntity<?> uploadMusic(@RequestParam MultipartFile file) {

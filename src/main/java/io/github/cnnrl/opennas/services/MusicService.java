@@ -92,6 +92,10 @@ public class MusicService {
     return repo.findAll();
   }
 
+  public List<SongMetadata> findByAlbum(String album) {
+    return repo.findByAlbum(album);
+  }
+
   public Resource getCover(String id) throws IOException {
     SongMetadata md = repo.findById(id).orElseThrow(() -> new IllegalArgumentException("Song not found!"));
 
