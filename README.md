@@ -1,10 +1,21 @@
 # OpenNAS
 
 ## Project Description
-<!--
-Fill this section with what the project is for, goals, use cases, architecture notes, etc.
--->
-
+__OpenNAS__ is a self-hosted personal network attached storage and media server built with Spring
+Boot. It is designed to run on a local machine or homelab to be accessed on the LAN or through VPN.
+It is not currently designed for public cloud services.  
+  
+There are currently two main services provided by __OpenNAS__: An encrypted file store, and music
+streaming over HTTP. The current encryption algorithm for files at rest is AES-256-GCM. Music is
+unencrypted when stored for lower overhead when streaming. All streaming sessions are secured using a
+stream token to allow authentication without custom HTTP headers. JAudioTagger is used to find the metadata
+within the music files. Metadata for files, music, and users are stored in SQL.  
+  
+Every request is logged in `json` format. This is done using an AOP-based system. A file cleaning
+service is also included for the file service that compares any dangling metadata entries against
+the filesystem. Any file within the file system but not present in the database, or any database entry not present
+in the filesystem is deleted.  
+  
 ## Requirements
 - Java 21
 - Git
