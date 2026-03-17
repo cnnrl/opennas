@@ -25,10 +25,10 @@ public class AuditAspect {
     this.jwtService = jwtService;
   }
 
-  @Around("execution(* io.github.cnnrl.opennas.controllers.OpenNASController.*(..))")
+  @Around("execution(* io.github.cnnrl.opennas.controllers.*.*(..))")
   public Object audit(ProceedingJoinPoint joinPoint) throws Throwable {
     // before
-    Object result = joinPoint.proceed(); // actually calls the method
+    Object result = joinPoint.proceed();
     HttpServletRequest req = ((ServletRequestAttributes) RequestContextHolder
         .currentRequestAttributes())
         .getRequest();
