@@ -91,10 +91,9 @@ public class MusicController {
       log.error("Could not get token for owner: {} for song: {}", owner, id, e);
       return ResponseEntity.badRequest().body(e.getMessage());
     }
-
   }
 
-  @GetMapping(value = "/stream/{id}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+  @GetMapping(value = "/stream/{id}")
   public ResponseEntity<ResourceRegion> streamSong(@PathVariable String id, @RequestParam String token,
       @RequestHeader HttpHeaders headers, HttpServletRequest req) {
     String user = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -102,6 +101,7 @@ public class MusicController {
     try {
       Resource resource = musicService.getSongResource(id, token, user, session);
       long contentLength = resource.contentLength();
+      String mimeType = musicService.getMimeType(id);
 
       List<HttpRange> ranges = headers.getRange();
 
@@ -109,7 +109,7 @@ public class MusicController {
         ResourceRegion region = new ResourceRegion(resource, 0, Math.min(1024 * 1024, contentLength));
         return ResponseEntity.ok()
             .header(HttpHeaders.ACCEPT_RANGES, "bytes")
-            .contentType(MediaType.APPLICATION_OCTET_STREAM)
+            .contentType(MediaType.parseMediaType(mimeType))
             .body(region);
       }
 
@@ -118,7 +118,7 @@ public class MusicController {
 
       return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT)
           .header(HttpHeaders.ACCEPT_RANGES, "bytes")
-          .contentType(MediaType.APPLICATION_OCTET_STREAM)
+          .contentType(MediaType.parseMediaType(mimeType))
           .body(region);
 
     } catch (IOException e) {

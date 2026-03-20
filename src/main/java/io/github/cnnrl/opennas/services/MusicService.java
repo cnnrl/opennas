@@ -55,22 +55,30 @@ public class MusicService {
     String artist = tag != null ? tag.getFirst(FieldKey.ARTIST) : "";
     String album = tag != null ? tag.getFirst(FieldKey.ALBUM) : "";
     Artwork cover = tag != null ? tag.getFirstArtwork() : null;
+    String format = header.getFormat().toLowerCase();
+    String mimeType = switch (format) {
+      case "mp3", "mpeg" -> "audio/mpeg";
+      case "flac" -> "audio/flac";
+      case "ogg" -> "audio/ogg";
+      case "mp4", "m4a", "aac" -> "audio/mp4";
+      case "wav" -> "audio/wav";
+      default -> "audio/mpeg";
+    };
     String ext = "";
 
     Path songPath = Paths.get(System.getProperty("user.home"), "opennas", "music", id, fileName);
     Files.createDirectories(songPath.getParent());
 
     if (cover != null) {
-      String mimeType = cover.getMimeType();
-      ext = mimeType.contains("png") ? "png" : "jpg";
+      String coverType = cover.getMimeType();
+      ext = coverType.contains("png") ? "png" : "jpg";
 
       Path coverPath = Paths.get(System.getProperty("user.home"), "opennas", "music", id, "cover." + ext);
       Files.write(coverPath, cover.getBinaryData());
     }
 
     SongMetadata md = new SongMetadata(id, title, artist, album, duration, file.getSize(),
-        file.getOriginalFilename().toString(),
-        ext);
+        file.getOriginalFilename().toString(), ext, mimeType);
     repo.save(md);
 
     try {
@@ -119,9 +127,7 @@ public class MusicService {
     if (!currUser.equals(claims.getSubject())) {
       throw new IllegalArgumentException("Token user mismatch!");
     }
-    if (!currSession.equals(claims.get("sessionId", String.class))) {
-      throw new IllegalArgumentException("Token session mismatch!");
-    }
+
     if (!id.equals(claims.get("songId", String.class))) {
       throw new IllegalArgumentException("You are not allowed to stream this song!");
     }
@@ -139,5 +145,9 @@ public class MusicService {
 
   public long getTotalSize(String id) {
     return repo.findById(id).orElseThrow(() -> new IllegalArgumentException("Song not found!")).getFileSize();
+  }
+
+  public String getMimeType(String id) {
+    return repo.findById(id).orElseThrow(() -> new IllegalArgumentException("Song not found!")).getMimeType();
   }
 }
