@@ -82,10 +82,8 @@ public class MusicController {
   @GetMapping("/stream/token/{id}")
   public ResponseEntity<?> getStreamToken(@PathVariable String id, HttpServletRequest request) {
     String owner = SecurityContextHolder.getContext().getAuthentication().getName();
-    String sessionId = request.getSession().getId();
-
     try {
-      String token = musicService.getStreamToken(id, owner, sessionId);
+      String token = musicService.getStreamToken(id, owner);
       return ResponseEntity.status(HttpStatus.OK).body(token);
     } catch (IllegalArgumentException e) {
       log.error("Could not get token for owner: {} for song: {}", owner, id, e);
@@ -97,9 +95,8 @@ public class MusicController {
   public ResponseEntity<ResourceRegion> streamSong(@PathVariable String id, @RequestParam String token,
       @RequestHeader HttpHeaders headers, HttpServletRequest req) {
     String user = SecurityContextHolder.getContext().getAuthentication().getName();
-    String session = req.getSession().getId();
     try {
-      Resource resource = musicService.getSongResource(id, token, user, session);
+      Resource resource = musicService.getSongResource(id, token, user);
       long contentLength = resource.contentLength();
       String mimeType = musicService.getMimeType(id);
 

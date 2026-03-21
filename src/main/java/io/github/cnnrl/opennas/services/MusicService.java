@@ -117,12 +117,12 @@ public class MusicService {
     return cover;
   }
 
-  public String getStreamToken(String id, String username, String session) {
+  public String getStreamToken(String id, String username) {
     SongMetadata md = repo.findById(id).orElseThrow(() -> new IllegalArgumentException("Song not found!"));
-    return jwtService.generateStreamToken(username, id, session, md.getDuration());
+    return jwtService.generateStreamToken(username, id, md.getDuration());
   }
 
-  public Resource getSongResource(String id, String token, String currUser, String currSession) throws IOException {
+  public Resource getSongResource(String id, String token, String currUser) throws IOException {
     Claims claims = jwtService.parse(token);
     if (!currUser.equals(claims.getSubject())) {
       throw new IllegalArgumentException("Token user mismatch!");
