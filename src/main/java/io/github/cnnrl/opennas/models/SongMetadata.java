@@ -15,14 +15,15 @@ public class SongMetadata {
   private long fileSize;
   private String fileName;
   private String coverExt;
-  private String mimeType;
+  private String songMimeType;
+  private String coverMimeType;
 
   public SongMetadata() {
-    this("", "", "", "", 0, 0L, "", "", "audo/mpeg");
+    this("", "", "", "", 0, 0L, "", "", "audo/mpeg", "image/jpeg");
   }
 
   public SongMetadata(String id, String songName, String artist, String album, int duration, long fileSize,
-      String fileName, String coverExt, String mimeType) {
+      String fileName, String coverExt, String songMimeType, String coverMimeType) {
     this.id = id;
     this.songName = songName;
     this.artist = artist;
@@ -31,7 +32,8 @@ public class SongMetadata {
     this.fileSize = fileSize;
     this.fileName = fileName;
     this.coverExt = coverExt;
-    this.mimeType = mimeType;
+    this.songMimeType = songMimeType;
+    this.coverMimeType = coverMimeType;
   }
 
   public String getId() {
@@ -66,8 +68,12 @@ public class SongMetadata {
     return coverExt;
   }
 
-  public String getMimeType() {
-    return mimeType;
+  public String getSongMimeType() {
+    return songMimeType;
+  }
+
+  public String getCoverMimeType() {
+    return coverMimeType;
   }
 
 }

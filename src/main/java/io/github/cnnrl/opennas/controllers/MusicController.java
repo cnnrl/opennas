@@ -69,7 +69,10 @@ public class MusicController {
     String user = SecurityContextHolder.getContext().getAuthentication().getName();
     try {
       Resource res = musicService.getCover(id);
-      return ResponseEntity.ok().body(res);
+      String coverExt = musicService.getCoverMimeType(id);
+      return ResponseEntity.ok()
+          .contentType(MediaType.parseMediaType(coverExt))
+          .body(res);
     } catch (IllegalArgumentException e) {
       log.error("User: {} Could not get cover for song: {}", user, id, e);
       return ResponseEntity.badRequest().body(e.getMessage());
@@ -98,7 +101,7 @@ public class MusicController {
     try {
       Resource resource = musicService.getSongResource(id, token, user);
       long contentLength = resource.contentLength();
-      String mimeType = musicService.getMimeType(id);
+      String mimeType = musicService.getSongMimeType(id);
 
       List<HttpRange> ranges = headers.getRange();
 

@@ -65,20 +65,25 @@ public class MusicService {
       default -> "audio/mpeg";
     };
     String ext = "";
+    String coverType = "image/jpeg";
 
     Path songPath = Paths.get(System.getProperty("user.home"), "opennas", "music", id, fileName);
     Files.createDirectories(songPath.getParent());
 
     if (cover != null) {
-      String coverType = cover.getMimeType();
-      ext = coverType.contains("png") ? "png" : "jpg";
+      coverType = cover.getMimeType();
+      if (coverType != null && coverType.contains("/")) {
+        ext = "." + coverType.substring(coverType.indexOf("/") + 1).toLowerCase();
+      } else {
+        ext = ".jpg";
+      }
 
-      Path coverPath = Paths.get(System.getProperty("user.home"), "opennas", "music", id, "cover." + ext);
+      Path coverPath = Paths.get(System.getProperty("user.home"), "opennas", "music", id, "cover" + ext);
       Files.write(coverPath, cover.getBinaryData());
     }
 
     SongMetadata md = new SongMetadata(id, title, artist, album, duration, file.getSize(),
-        file.getOriginalFilename().toString(), ext, mimeType);
+        file.getOriginalFilename().toString(), ext, mimeType, coverType);
     repo.save(md);
 
     try {
@@ -87,7 +92,7 @@ public class MusicService {
       Files.deleteIfExists(tempPath.getParent());
     } catch (Exception e) {
       repo.deleteById(id);
-      Files.deleteIfExists(songPath.getParent().resolve("cover." + ext));
+      Files.deleteIfExists(songPath.getParent().resolve("cover" + ext));
       Files.deleteIfExists(songPath.getParent());
 
       throw e;
@@ -107,7 +112,7 @@ public class MusicService {
   public Resource getCover(String id) throws IOException {
     SongMetadata md = repo.findById(id).orElseThrow(() -> new IllegalArgumentException("Song not found!"));
 
-    Path path = Paths.get(System.getProperty("user.home"), "opennas", "music", id, "cover." + md.getCoverExt());
+    Path path = Paths.get(System.getProperty("user.home"), "opennas", "music", id, "cover" + md.getCoverExt());
     if (md.getCoverExt().isBlank() || !Files.exists(path)) {
       path = NO_COVER_PATH;
     }
@@ -147,7 +152,15 @@ public class MusicService {
     return repo.findById(id).orElseThrow(() -> new IllegalArgumentException("Song not found!")).getFileSize();
   }
 
-  public String getMimeType(String id) {
-    return repo.findById(id).orElseThrow(() -> new IllegalArgumentException("Song not found!")).getMimeType();
+  public String getSongMimeType(String id) {
+    return repo.findById(id).orElseThrow(() -> new IllegalArgumentException("Song not found!")).getSongMimeType();
+  }
+
+  public String getCoverExt(String id) {
+    return repo.findById(id).orElseThrow(() -> new IllegalArgumentException("Song not found!")).getCoverExt();
+  }
+
+  public String getCoverMimeType(String id) {
+    return repo.findById(id).orElseThrow(() -> new IllegalArgumentException("Song not found!")).getCoverMimeType();
   }
 }
