@@ -76,14 +76,14 @@ Note:
 - `./gradlew bootRun` already loads variables from `.env` (via Gradle task config).
 
   
-### 4. Extra Setup
+### 3. Extra Setup
 A temporary cover art image will need to be saved in:
 ```
-opennas/tmp/cover.jpg
+{STORAGE_PATH}/tmp/cover.jpg
 ```
 This will be the default for songs uploaded without a proper cover image.
-This image is not included in the repo and will need to be done __on your own__. Refer to File System Reference for more information on the standards.
-### 3. Run the application
+This image is not included in the repo and will need to be done __on your own__. Refer to [File System Reference](#file-storage-structure) for more information on the standards.
+### 4. Run the application
 ```bash
 ./gradlew bootRun
 ```
@@ -99,6 +99,7 @@ The app starts on the default Spring Boot port:
 ## API Reference
 
 All protected routes require an `Authorization: Bearer <token>` header unless otherwise noted.
+Note: `/h2-console/**` is open without authentication.
 
 ### Auth
 
@@ -115,44 +116,36 @@ All protected routes require an `Authorization: Bearer <token>` header unless ot
 
 ### Music
 
-- POST `/music/upload` — JWT + ADMIN — Upload a song. Extracts metadata automatically from audio tags.
+- POST `/music/upload` — JWT — Upload a song. Extracts metadata automatically from audio tags.
 - GET `/music` — JWT — List all songs with metadata.
+- GET `/music/{album}` — JWT — List songs filtered by album name.
 - GET `/music/art/{id}` — JWT — Get cover art for a song. Returns a default image if none exists.
 - GET `/stream/token/{id}` — JWT — Get a short-lived stream token for a song.
 - GET `/stream/{id}?token={token}` — JWT + Stream Token — Stream a song. Supports `Range` requests and also works without a `Range` header.
 
-### File System Reference
+## File System Reference
 
 Set the global storage path in `.env` (from `.env.example`) before running __OpenNAS__:
 
 ```bash
 cp .env.example .env
 # then set:
-# OPENNAS_STORAGE_PATH=/absolute/path/to/opennas-storage
+# STORAGE_PATH=/absolute/path/to/opennas-storage
 ```
 
-__OpenNAS__ uses the following storage layout relative to the global storage path:
-
-- `/files/{user}/{id}/{filename}`
-- `/logs/{date}`
-- `/music/{id}/{songname}`
-- `/music/{id}/cover`
-- `/tmp/cover.jpg` (global fallback cover image)
-
-## File Storage Structure
-
-The application stores all data under `~/opennas/` (relative to the user running the app):
+The application stores all data under the environment variable `STORAGE_PATH`. All paths are relative to this.
 
 - `files/{owner}/{id}/{filename}` — Encrypted user files (AES/GCM)
 - `music/{id}/{filename}` — Audio files (unencrypted)
-- `music/{id}/cover.{jpg|png}` — Album art (if present in audio tags)
+- `music/{id}/{covername}` — Album art (if present in audio tags)
 - `logs/{date}.json` — Audit logs (JSON lines, daily rotation)
-- `temp/{id}/{filename}` — Temporary upload staging (cleaned after upload)
+- `tmp/cover.jpg` — User defined default song cover
+
 
 Notes:
 - User files are encrypted at rest using AES-256-GCM. Each file has a unique IV prepended.
 - Music files are stored unencrypted due to streaming performance requirements.
-- Audit logs record every request including IP address, user, action, and file.
+- Audit logs record every request (including IP address, user, action, and file) made to the server.
 - A scheduled cleaner runs periodically to remove orphaned files not tracked in the database.
 
 ## Testing

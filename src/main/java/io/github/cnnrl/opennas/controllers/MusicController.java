@@ -48,7 +48,6 @@ public class MusicController {
     return ResponseEntity.ok().body(songs);
   }
 
-  // @PreAuthorize("hasRole('ADMIN')")
   @PostMapping("/music/upload")
   public ResponseEntity<?> uploadMusic(@RequestParam MultipartFile file) {
     String owner = SecurityContextHolder.getContext().getAuthentication().getName();

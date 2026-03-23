@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import io.github.cnnrl.opennas.config.StorageConfig;
 import io.github.cnnrl.opennas.models.AuditEntry;
 
 import tools.jackson.databind.ObjectMapper;
@@ -17,14 +18,16 @@ import tools.jackson.databind.ObjectMapper;
 @Service
 public class AuditService {
   private final ObjectMapper mapper;
+  private final String globalPath;
   private static final Logger log = LoggerFactory.getLogger(FileService.class);
 
-  public AuditService(ObjectMapper mapper) {
+  public AuditService(ObjectMapper mapper, StorageConfig storageConfig) {
     this.mapper = mapper;
+    globalPath = storageConfig.getStoragePath();
   }
 
   public void log(AuditEntry entry) {
-    Path storagePath = Paths.get(System.getProperty("user.home"), "opennas", "logs", LocalDate.now().toString() + ".json");
+    Path storagePath = Paths.get(globalPath, "logs", LocalDate.now().toString() + ".json");
 
     try {
       String json = mapper.writeValueAsString(entry);
