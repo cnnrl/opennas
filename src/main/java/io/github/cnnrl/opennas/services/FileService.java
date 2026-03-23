@@ -17,6 +17,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import io.github.cnnrl.opennas.config.StorageConfig;
 import io.github.cnnrl.opennas.dto.DeleteTicket;
 import io.github.cnnrl.opennas.dto.FileResult;
 import io.github.cnnrl.opennas.models.FileMetadata;
@@ -26,10 +27,12 @@ import io.github.cnnrl.opennas.repositories.FileMetadataRepository;
 public class FileService {
   private final FileMetadataRepository repo;
   private final FileEncryptService fes;
+  private final String globalPath;
 
-  public FileService(FileMetadataRepository repo, FileEncryptService fes) {
+  public FileService(FileMetadataRepository repo, FileEncryptService fes, StorageConfig storageConfig) {
     this.repo = repo;
     this.fes = fes;
+    this.globalPath = storageConfig.getStoragePath();
   }
 
   public FileMetadata saveFile(MultipartFile file, String owner) throws GeneralSecurityException, IOException {
@@ -43,9 +46,8 @@ public class FileService {
     }
 
     String id = UUID.randomUUID().toString();
-    String home = System.getProperty("user.home");
     String fileName = Paths.get(file.getOriginalFilename()).getFileName().toString();
-    Path storagePath = Paths.get(home, "opennas", "files", owner, id, fileName);
+    Path storagePath = Paths.get(globalPath, "files", owner, id, fileName);
 
     String type = file.getContentType();
 
@@ -89,7 +91,7 @@ public class FileService {
     }
 
     String fileName = Paths.get(md.getFileName()).getFileName().toString();
-    Path path = Paths.get(System.getProperty("user.home"), "opennas", "files", md.getOwner(), id, fileName);
+    Path path = Paths.get(globalPath, "files", md.getOwner(), id, fileName);
 
     if (!Files.exists(path)) {
       throw new FileNotFoundException("File Not Found!");
@@ -110,7 +112,7 @@ public class FileService {
 
     FileMetadata md = repo.findById(id).orElseThrow(() -> new IllegalArgumentException("File Not Found!"));
 
-    Path path = Paths.get(System.getProperty("user.home"), "opennas", "files", md.getOwner(), id, md.getFileName());
+    Path path = Paths.get(globalPath, "files", md.getOwner(), id, md.getFileName());
     if (!Files.exists(path)) {
       throw new FileNotFoundException("File Not Found!");
     }

@@ -19,6 +19,7 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import io.github.cnnrl.opennas.config.StorageConfig;
 import io.github.cnnrl.opennas.models.SongMetadata;
 import io.github.cnnrl.opennas.repositories.SongRepository;
 
@@ -28,12 +29,14 @@ import io.jsonwebtoken.Claims;
 public class MusicService {
   private final SongRepository repo;
   private final JwtService jwtService;
+  private final String globalPath;
+  private final Path NO_COVER_PATH;
 
-  private static final Path NO_COVER_PATH = Paths.get(System.getProperty("user.home"), "opennas", "tmp", "cover.jpg");
-
-  public MusicService(SongRepository repo, JwtService jwtService) {
+  public MusicService(SongRepository repo, JwtService jwtService, StorageConfig storageConfig) {
     this.repo = repo;
     this.jwtService = jwtService;
+    globalPath = storageConfig.getStoragePath();
+    NO_COVER_PATH = Paths.get(globalPath, "tmp", "cover.jpg");
   }
 
   public SongMetadata upload(MultipartFile file) throws Exception {
@@ -42,7 +45,7 @@ public class MusicService {
     }
     String fileName = Paths.get(file.getOriginalFilename()).getFileName().toString();
     String id = UUID.randomUUID().toString();
-    Path tempPath = Paths.get(System.getProperty("user.home"), "opennas", "temp", id, fileName);
+    Path tempPath = Paths.get(globalPath, "temp", id, fileName);
 
     Files.createDirectories(tempPath.getParent());
     Files.copy(file.getInputStream(), tempPath);
@@ -67,7 +70,7 @@ public class MusicService {
     String ext = "";
     String coverType = "image/jpeg";
 
-    Path songPath = Paths.get(System.getProperty("user.home"), "opennas", "music", id, fileName);
+    Path songPath = Paths.get(globalPath, "music", id, fileName);
     Files.createDirectories(songPath.getParent());
 
     if (cover != null) {
@@ -78,7 +81,7 @@ public class MusicService {
         ext = ".jpg";
       }
 
-      Path coverPath = Paths.get(System.getProperty("user.home"), "opennas", "music", id, "cover" + ext);
+      Path coverPath = Paths.get(globalPath, "music", id, "cover" + ext);
       Files.write(coverPath, cover.getBinaryData());
     }
 
@@ -112,7 +115,7 @@ public class MusicService {
   public Resource getCover(String id) throws IOException {
     SongMetadata md = repo.findById(id).orElseThrow(() -> new IllegalArgumentException("Song not found!"));
 
-    Path path = Paths.get(System.getProperty("user.home"), "opennas", "music", id, "cover" + md.getCoverExt());
+    Path path = Paths.get(globalPath, "music", id, "cover" + md.getCoverExt());
     if (md.getCoverExt().isBlank() || !Files.exists(path)) {
       path = NO_COVER_PATH;
     }
@@ -139,7 +142,7 @@ public class MusicService {
 
     SongMetadata md = repo.findById(id).orElseThrow(() -> new IllegalArgumentException("Song not found!"));
 
-    Path storagePath = Paths.get(System.getProperty("user.home"), "opennas", "music", id, md.getFileName());
+    Path storagePath = Paths.get(globalPath, "music", id, md.getFileName());
 
     if (!Files.exists(storagePath)) {
       throw new IllegalArgumentException("File missing!");

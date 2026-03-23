@@ -1,23 +1,29 @@
 package io.github.cnnrl.opennas.services;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.doNothing;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.access.AccessDeniedException;
+
+import io.github.cnnrl.opennas.config.StorageConfig;
 import io.github.cnnrl.opennas.models.FileMetadata;
 import io.github.cnnrl.opennas.repositories.FileMetadataRepository;
-import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class FileServiceTest {
@@ -28,8 +34,16 @@ class FileServiceTest {
   @Mock
   FileEncryptService fes;
 
-  @InjectMocks
+  @Mock
+  StorageConfig storageConfig;
+
   FileService fileService;
+
+  @BeforeEach
+  void setUp() {
+    lenient().when(storageConfig.getStoragePath()).thenReturn("/tmp/opennas-test");
+    fileService = new FileService(repo, fes, storageConfig);
+  }
 
   @Test
   void saveFile_withValidInput_shouldSucceed() throws Exception {

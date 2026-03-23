@@ -75,6 +75,14 @@ set +a
 Note:
 - `./gradlew bootRun` already loads variables from `.env` (via Gradle task config).
 
+  
+### 4. Extra Setup
+A temporary cover art image will need to be saved in:
+```
+opennas/tmp/cover.jpg
+```
+This will be the default for songs uploaded without a proper cover image.
+This image is not included in the repo and will need to be done __on your own__. Refer to File System Reference for more information on the standards.
 ### 3. Run the application
 ```bash
 ./gradlew bootRun
@@ -112,6 +120,24 @@ All protected routes require an `Authorization: Bearer <token>` header unless ot
 - GET `/music/art/{id}` — JWT — Get cover art for a song. Returns a default image if none exists.
 - GET `/stream/token/{id}` — JWT — Get a short-lived stream token for a song.
 - GET `/stream/{id}?token={token}` — JWT + Stream Token — Stream a song. Supports `Range` requests and also works without a `Range` header.
+
+### File System Reference
+
+Set the global storage path in `.env` (from `.env.example`) before running __OpenNAS__:
+
+```bash
+cp .env.example .env
+# then set:
+# OPENNAS_STORAGE_PATH=/absolute/path/to/opennas-storage
+```
+
+__OpenNAS__ uses the following storage layout relative to the global storage path:
+
+- `/files/{user}/{id}/{filename}`
+- `/logs/{date}`
+- `/music/{id}/{songname}`
+- `/music/{id}/cover`
+- `/tmp/cover.jpg` (global fallback cover image)
 
 ## File Storage Structure
 

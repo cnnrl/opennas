@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import io.github.cnnrl.opennas.config.StorageConfig;
 import io.github.cnnrl.opennas.models.FileMetadata;
 import io.github.cnnrl.opennas.repositories.FileMetadataRepository;
 
@@ -22,12 +23,14 @@ import io.github.cnnrl.opennas.repositories.FileMetadataRepository;
 public class CleanerService {
   private final FileMetadataRepository repo;
   private static final Logger log = LoggerFactory.getLogger(CleanerService.class);
+  private final String globalPath;
 
-  public CleanerService(FileMetadataRepository repo) {
+  public CleanerService(FileMetadataRepository repo, StorageConfig storageConfig) {
     this.repo = repo;
+    globalPath = storageConfig.getStoragePath();
   }
 
-  @Scheduled(cron = "0 0 0 * * * ") // For prod - midnight
+  @Scheduled(cron = "0 0 0 * * *") // For prod - midnight
   // @Scheduled(fixedRate = 180000) // For test - 3 mins
 
   public void clean() {
@@ -35,7 +38,7 @@ public class CleanerService {
         .map(FileMetadata::getId)
         .collect(Collectors.toCollection(HashSet::new));
 
-    try (Stream<Path> paths = Files.walk(Paths.get(System.getProperty("user.home"), "opennas", "files"))) {
+    try (Stream<Path> paths = Files.walk(Paths.get(globalPath, "files"))) {
       paths.filter(p -> p.toFile().isFile())
           .filter(p -> {
             try {
