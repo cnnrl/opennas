@@ -19,7 +19,7 @@ public class JwtService {
   private final SecretKey key;
 
   public JwtService(@Value("${jwt.secret}") String secret) {
-    this.key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
+    key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
   }
 
   public String tokenize(String username, Role role) {

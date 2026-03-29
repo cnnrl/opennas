@@ -25,7 +25,7 @@ public class AuthController {
   public ResponseEntity<?> register(@RequestBody AuthRequest req) {
     try {
       authService.register(req.getUsername(), req.getPassword());
-      return login(req);
+      return ResponseEntity.ok().body(login(req));
     } catch (IllegalArgumentException e) {
       log.error("Could not create with username: {}", req.getUsername(), e);
       return ResponseEntity.badRequest().body(e.getMessage());
